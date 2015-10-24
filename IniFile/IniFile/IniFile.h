@@ -129,13 +129,33 @@ public:
 	bool setStringValue(const char * section, const char * key, const char * value);
 
 private:
-	char * _FileName;       /* .ini文件名      */
-	char * _FileContainer;  /* 储存文件内容 */
-//	bool   _IsFileExist;    /* 标记文件是否存在 */
-	int    _FileSize;       /* .ini文件大小 */
+	char        * _FileName;                  /* .ini文件名      */
+	char        * _FileContainer;             /* .ini文件内容 */
+	unsigned int  _FileSize;                  /* .ini文件大小 */
+	const unsigned int _MAXFILESIZE = 65535;  /* 文件最大大小 */
 
+	/**
+	 *  \brief  将文件内容载入_FileContainer中
+	 *
+	 *  \return 操作成功返回true，否则返回false
+	 */
 	bool loadIniFile();
-	bool getFileSize();
-	bool findSection(int &sec_start, int &sec_end);
-	bool findKey(int &key_start,int &key_end)
+
+	/**
+	 *  \brief  查找相应section/key/value的位置
+	 *          (若未查找到则将相应变量置为0)
+	 *
+	 *  \param  section      需查找的section名
+	 *          key          需查找的key名
+	 *			sec_start    section名第一个字符所在位置
+	 *			sec_end      section名最后一个字符所在位置
+	 *			key_start    key名第一个字符所在位置 
+	 *			key_end      section名第一个字符所在位置
+	 *			value_start  value第一个字符所在位置
+	 *			value_end    value最后一个字符所在位置
+	 */
+	void IniFile::findPosition(const char * section, const char * key,
+		unsigned int &sec_start, unsigned int &sec_end,
+		unsigned int &key_start, unsigned int &key_end,
+		unsigned int &value_start, unsigned int &value_end)
 };
