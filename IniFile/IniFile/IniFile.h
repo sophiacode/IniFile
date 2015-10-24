@@ -129,13 +129,6 @@ public:
 	bool setStringValue(const char * section, const char * key, const char * value);
 
 private:
-	char * _FileName;       /* .ini文件名      */
-	char * _FileContainer;  /* 储存文件内容 */
-//	bool   _IsFileExist;    /* 标记文件是否存在 */
-	int    _FileSize;       /* .ini文件大小 */
-
-	bool loadIniFile();
-	bool getFileSize();
-	bool findSection(int &sec_start, int &sec_end);
-	bool findKey(int &key_start,int &key_end)
+	char * _FileName;       /* .ini文件名      */ 
+	bool   _IsFileExist;    /* 标志文件是否存在 */
 };
