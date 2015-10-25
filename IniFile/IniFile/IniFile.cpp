@@ -1,5 +1,7 @@
 #include<fstream>
 #include<iostream>
+#include<cstdlib>
+#include<string>
 #include"inifile.h"
 
 IniFile::IniFile() :
@@ -186,72 +188,269 @@ bool IniFile::createIniFile(const char * filename)
 
 bool IniFile::setIntegerValue(const char * section, const char * key, const int value)
 {
+	char *buf, *rhs,*valueOther;
+	rhs = new char[_FileSize + 5];
+	itoa(value, valueOther, 10);
+	memcpy(rhs, _FileContainer, _FileSize);
+	delete[]_FileContainer;
+	_FileContainer = nullptr;
 	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
 	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
+	if (sec_end == 0)//not find the section
+	{
+		unsigned int newsize = strlen(section) + strlen(key) + strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else
+		{
+			buf = new char[newsize];
+			memcpy(buf, section, strlen(section));
+			key_start = strlen(section);
+			memcpy(buf + key_start, key, strlen(key));
+			value_start = key_start + strlen(valueOther);
+			memcpy(buf + value_start, valueOther, strlen(valueOther));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
+			return true;
+		}
+	}
+	else if (key_end == 0)//not find the key
+	{
+		unsigned int newsize = +strlen(key) + strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else
+		{
+			buf = new char[newsize];
+			memcpy(buf, key, strlen(key));
+			value_start = strlen(valueOther);
+			memcpy(buf + value_start, valueOther, strlen(valueOther));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
+			return true;
+		}
+	}
+	else//not find the value or change the value
+	{
+		unsigned int newsize = strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else {
+			if (value_start == 0)
+			{
+				buf = new char[newsize];
+				memcpy(buf, valueOther, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
+			else
+			{
+				if (newsize < value_end - value_start)
+				{
+					newsize = value_end - value_start + 1;
+				}
+
+				buf = new char[newsize];
+				memcpy(buf, valueOther, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
+		}
+	}
 
 }
 
 bool IniFile::setDoubleValue(const char * section, const char * key, const double value)
 {
+	char *buf, *rhs, *valueOther;
+	int len = 20;
+	rhs = new char[_FileSize + 5];
+	gcvt(value, len, valueOther);
+	memcpy(rhs, _FileContainer, _FileSize);
+	delete[]_FileContainer;
+	_FileContainer = nullptr;
 	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
 	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
+	if (sec_end == 0)//not find the section
+	{
+		unsigned int newsize = strlen(section) + strlen(key) + strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else
+		{
+			buf = new char[newsize];
+			memcpy(buf, section, strlen(section));
+			key_start = strlen(section);
+			memcpy(buf + key_start, key, strlen(key));
+			value_start = key_start + strlen(valueOther);
+			memcpy(buf + value_start, valueOther, strlen(valueOther));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
+			return true;
+		}
+	}
+	else if (key_end == 0)//not find the key
+	{
+		unsigned int newsize = +strlen(key) + strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else
+		{
+			buf = new char[newsize];
+			memcpy(buf, key, strlen(key));
+			value_start = strlen(valueOther);
+			memcpy(buf + value_start, valueOther, strlen(valueOther));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
+			return true;
+		}
+	}
+	else//not find the value or change the value
+	{
+		unsigned int newsize = strlen(valueOther) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
+		{
+			std::cerr << "File space is not enough." << std::endl;
+			return false;
+		}
+		else {
+			if (value_start == 0)
+			{
+				buf = new char[newsize];
+				memcpy(buf, valueOther, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
+			else
+			{
+				if (newsize < value_end - value_start)
+				{
+					newsize = value_end - value_start + 1;
+				}
+
+				buf = new char[newsize];
+				memcpy(buf, valueOther, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
+		}
+	}
 
 }
 
 bool IniFile::setStringValue(const char * section, const char * key, const char * value)
 {
+	char *buf,*rhs;
+	rhs = new char[_FileSize + 5];
+	memcpy(rhs, _FileContainer, _FileSize);
+	delete[]_FileContainer;
+	_FileContainer = nullptr;
 	unsigned int sec_start,sec_end, key_start,key_end,value_start,value_end;
 	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
-	if (sec_end-sec_start == 0)//not find the section
+	if (sec_end == 0)//not find the section
 	{
-		unsigned int newsize = _FileSize + strlen(section) + strlen(key) + strlen(value) + 5;
-		if (newsize > _MAXFILESIZE)
+		unsigned int newsize = strlen(section) + strlen(key) + strlen(value) + 5;
+		if (newsize+_FileSize > _MAXFILESIZE)
 		{
 			std::cerr << "File space is not enough." << std::endl;
 			return false;
 		}
 		else
 		{
-			_FileContainer = new char[newsize];
-			memcpy(_FileContainer+sec_start, section, strlen(section));
-			key_start = sec_start + strlen(section);
-			memcpy(_FileContainer + key_start, key, strlen(key));
+			buf = new char[newsize];
+			memcpy(buf, section, strlen(section));
+			key_start = strlen(section);
+			memcpy(buf + key_start, key, strlen(key));
 			value_start = key_start + strlen(value);
-			memcpy(_FileContainer + value_start, value, strlen(value));
+			memcpy(buf + value_start, value, strlen(value));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
 			return true;
 		}
 	}
-	else if (key_end - key_start == 0)//not find the key
+	else if (key_end == 0)//not find the key
 	{
-		unsigned int newsize = _FileSize + strlen(key) + strlen(value) + 5;
-		if (newsize > _MAXFILESIZE)
+		unsigned int newsize = + strlen(key) + strlen(value) + 5;
+		if (newsize + _FileSize > _MAXFILESIZE)
 		{
 			std::cerr << "File space is not enough." << std::endl;
 			return false;
 		}
 		else
 		{
-			_FileContainer = new char[newsize];
-			memcpy(_FileContainer + key_start, key, strlen(key));
-			value_start = key_start + strlen(value);
-			memcpy(_FileContainer + value_start, value, strlen(value));
+			buf = new char[newsize];
+			memcpy(buf, key, strlen(key));
+			value_start = strlen(value);
+			memcpy(buf + value_start, value, strlen(value));
+			_FileContainer = new char[_FileSize + newsize];
+			memcpy(_FileContainer, rhs, _FileSize);
+			memcpy(_FileContainer + _FileSize, buf, newsize);
 			return true;
 		}
 	}
-	else
+	else//not find the value or change the value
 	{
 		unsigned int newsize = strlen(value) + 5;
-		if (newsize > _MAXFILESIZE)
+		if (newsize + _FileSize > _MAXFILESIZE)
 		{
 			std::cerr << "File space is not enough." << std::endl;
 			return false;
 		}
-		else
-		{
+		else {
+			if (value_start == 0)
+			{
+				buf = new char[newsize];
+				memcpy(buf, value, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
+			else
+			{
+				if (newsize < value_end - value_start)
+				{
+					newsize = value_end - value_start + 1;
+				}
 
+				buf = new char[newsize];
+				memcpy(buf, value, newsize);
+				_FileContainer = new char[_FileSize + newsize];
+				memcpy(_FileContainer, rhs, _FileSize);
+				memcpy(_FileContainer + _FileSize, buf, newsize);
+				return true;
+			}
 		}
 	}
-	
+			
 }
 
 bool IniFile::loadIniFile()
