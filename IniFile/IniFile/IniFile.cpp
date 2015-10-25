@@ -71,6 +71,8 @@ IniFile::~IniFile()
 
 IniFile & IniFile::operator = (const IniFile & rhs)
 {
+	IniFile emptyfile;
+
 	if (this != &rhs)
 	{
 		delete[] _FileName;
@@ -78,7 +80,7 @@ IniFile & IniFile::operator = (const IniFile & rhs)
 		if (_FileName == nullptr)
 		{
 			std::cerr << "Fail to allocate memory." << std::endl;
-			return;
+			return emptyfile;
 		}
 		std::copy(rhs._FileName, rhs._FileName + strlen(_FileName), _FileName);
 
@@ -89,73 +91,11 @@ IniFile & IniFile::operator = (const IniFile & rhs)
 		if (_FileContainer == nullptr)
 		{
 			std::cerr << "Fail to allocate memory." << std::endl;
-			return;
+			return emptyfile;
 		}
 		std::copy(rhs._FileContainer, rhs._FileContainer + rhs._FileSize, _FileContainer);
 	}
 	return *this;
-}
-
-bool IniFile::getIntegerValue(const char * section, const char * key, int & container)
-{
-	char *value;
-	value = new char[_MAXFILESIZE];
-	int size;
-	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
-	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
-	if (sec_start == sec_end == key_start == key_end == value_start == value_end == 0)
-	{
-		return false;
-	}
-	else
-	{
-		size = value_end - value_start + 1;
-		memset(value, 0, _MAXFILESIZE);
-		memcpy(value, _FileContainer+value_start, size);
-		container = atoi(value);
-		return true;
-	}
-}
-
-bool IniFile::getDoubleValue(const char * section, const char * key, double & container)
-{
-	char *value;
-	value = new char[_MAXFILESIZE];
-	int size;
-	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
-	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
-	if (sec_start == sec_end == key_start == key_end == value_start == value_end == 0)
-	{
-		return false;
-	}
-	else
-	{
-		size = value_end - value_start + 1;
-		memset(value, 0, _MAXFILESIZE);
-		memcpy(value, _FileContainer + value_start, size);
-		container = atof(value);
-		return true;
-	}
-}
-
-bool IniFile::getStringValue(const char * section, const char * key, char * container)
-{
-	
-	container = new char[_MAXFILESIZE];
-	int size;
-	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
-	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
-	if (sec_start == sec_end == key_start == key_end == value_start == value_end == 0)
-	{
-		return false;
-	}
-	else
-	{
-		size = value_end - value_start + 1;
-		memset(container, 0, _MAXFILESIZE);
-		memcpy(container, _FileContainer + value_start, size);
-		return true;
-	}
 }
 
 bool IniFile::createIniFile(const char * filename)
@@ -186,11 +126,79 @@ bool IniFile::createIniFile(const char * filename)
 	return true;
 }
 
+bool IniFile::getIntegerValue(const char * section, const char * key, int & container)
+{
+	char *value;
+	int size;
+	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
+	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
+	if (sec_start == 0 || sec_end == 0 || key_start == 0 
+		|| key_end == 0 || value_start == 0 || value_end == 0)
+	{
+		std::cerr << "Fail to find the key." << std::endl;
+		return false;
+	}
+	else
+	{
+		size = value_end - value_start + 1;
+		value = new char[size];
+		std::copy(_FileContainer+value_start, value, size-1);
+		value[size] = '\0';
+		container = atoi(value);
+		return true;
+	}
+}
+
+bool IniFile::getDoubleValue(const char * section, const char * key, double & container)
+{
+	char *value;
+	int size;
+	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
+	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
+	if (sec_start == 0 || sec_end == 0 || key_start == 0
+		|| key_end == 0 || value_start == 0 || value_end == 0)
+	{
+		std::cerr << "Fail to find the key." << std::endl;
+		return false;
+	}
+	else
+	{
+		size = value_end - value_start + 1;
+		value = new char[size];
+		std::copy(_FileContainer + value_start, value, size - 1);
+		value[size] = '\0';
+		container = atoi(value);
+		return true;
+	}
+}
+
+bool IniFile::getStringValue(const char * section, const char * key, char * container)
+{
+	int size;
+	unsigned int sec_start, sec_end, key_start, key_end, value_start, value_end;
+	findPosition(section, key, sec_start, sec_end, key_start, key_end, value_start, value_end);
+	if (sec_start == 0 || sec_end == 0 || key_start == 0
+		|| key_end == 0 || value_start == 0 || value_end == 0)
+	{
+		std::cerr << "Fail to find the key." << std::endl;
+		return false;
+	}
+	else
+	{
+		size = value_end - value_start + 1;
+		container = new char[size];
+		std::copy(_FileContainer + value_start, container, size - 1);
+		container[size] = '\0';
+		return true;
+	}
+}
+
 bool IniFile::setIntegerValue(const char * section, const char * key, const int value)
 {
-	char *buf, *rhs,*valueOther;
+	char *buf, *rhs, *valueOther;
 	rhs = new char[_FileSize + 5];
-	itoa(value, valueOther, 10);
+	valueOther = new char[6];
+	_itoa_s(value, valueOther, 6, 10);
 	memcpy(rhs, _FileContainer, _FileSize);
 	delete[]_FileContainer;
 	_FileContainer = nullptr;
@@ -280,7 +288,8 @@ bool IniFile::setDoubleValue(const char * section, const char * key, const doubl
 	char *buf, *rhs, *valueOther;
 	int len = 20;
 	rhs = new char[_FileSize + 5];
-	gcvt(value, len, valueOther);
+	valueOther = new char[len];
+	_gcvt_s(valueOther, len, value, len);
 	memcpy(rhs, _FileContainer, _FileSize);
 	delete[]_FileContainer;
 	_FileContainer = nullptr;
@@ -449,8 +458,7 @@ bool IniFile::setStringValue(const char * section, const char * key, const char 
 				return true;
 			}
 		}
-	}
-			
+	}		
 }
 
 bool IniFile::loadIniFile()
@@ -536,7 +544,7 @@ void IniFile::findPosition(const char * section, const char * key,
 			{
 				j--;
 			}
-			if (strncpy(_FileContainer + j, key, i - j) == 0)
+			if (strncmp(_FileContainer + j, key, i - j) == 0)
 			{
 				key_end = i;
 				break;

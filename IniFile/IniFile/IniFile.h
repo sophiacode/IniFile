@@ -157,5 +157,5 @@ private:
 	void IniFile::findPosition(const char * section, const char * key,
 		unsigned int &sec_start, unsigned int &sec_end,
 		unsigned int &key_start, unsigned int &key_end,
-		unsigned int &value_start, unsigned int &value_end)
+		unsigned int &value_start, unsigned int &value_end);
 };
