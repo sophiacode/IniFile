@@ -147,15 +147,14 @@ private:
 	 *
 	 *  \param  section      需查找的section名
 	 *          key          需查找的key名
-	 *			sec_start    section名第一个字符所在位置
-	 *			sec_end      section名最后一个字符所在位置
-	 *			key_start    key名第一个字符所在位置 
+	 *			sec_end      section名所在行最后一个字符位置 
 	 *			key_end      section名第一个字符所在位置
 	 *			value_start  value第一个字符所在位置
 	 *			value_end    value最后一个字符所在位置
 	 */
-	void IniFile::findPosition(const char * section, const char * key,
-		unsigned int &sec_start, unsigned int &sec_end,
-		unsigned int &key_start, unsigned int &key_end,
+	void findPosition(const char * section, const char * key,
+		unsigned int &sec_end, unsigned int &key_end,
 		unsigned int &value_start, unsigned int &value_end);
+
+	void ignoreComment(unsigned int &position);
 };

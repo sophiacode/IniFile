@@ -4,28 +4,34 @@
 
 int main(void)
 {
-	IniFile file;
-	//IniFile file2("test2.ini");
-	//IniFile file3(file2);
-	//IniFile file4;
-	file.createIniFile("test.ini");
-	//file4 = file;
+	IniFile file2("test.ini");
+	IniFile file3(file2);
+	IniFile file4 = file3;
 
 	int v_int;
 	double v_double;
 	char v_char[10];
-	file.getIntegerValue("General", "Age", v_int);
-	std::cout << v_int << std::endl;
-	file.getDoubleValue("Info", "Cost", v_double);
-	std::cout << v_double << std::endl;
-	file.getStringValue("General", "Language", v_char);
-	std::cout << v_char << std::endl;
+	
+	for (int i = 0;i < 1000;i++)
+	{
+		IniFile file;
+		file.createIniFile("test.ini");
 
-	file.setStringValue("General", "Language", "Chinese");
-	file.setStringValue("Another", "Test", "Succeed");
-	file.setStringValue("Another", "Test2", "Succeed");
-	//file.setIntegerValue("Another", "Number", 30);
-	//file.setDoubleValue("Info", "Get", 234.123);
+		file.setStringValue("Another", "Test", "Succeed");
+		file.setIntegerValue("Another", "Count", i);
+		int count;
+		file.getIntegerValue("Another", "Count", count);
+		std::cout << count << std::endl;
+	}
+
+	file2.getStringValue("General", "Language", v_char);
+	file3.getIntegerValue("General", "Age", v_int);
+	file4.getDoubleValue("Info", "Cost", v_double);
+	std::cout << v_char << std::endl;
+	std::cout << v_int << std::endl;
+	std::cout << v_double << std::endl;
+
+	file2.getStringValue("Section", "Key", v_char);
 
 	system("pause");
 	return 0;
