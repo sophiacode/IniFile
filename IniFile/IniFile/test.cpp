@@ -22,6 +22,7 @@ int main(void)
 		int count;
 		file.getIntegerValue("Another", "Count", count);
 		std::cout << count << std::endl;
+
 	}
 
 	file2.getStringValue("General", "Language", v_char);
@@ -31,7 +32,8 @@ int main(void)
 	std::cout << v_int << std::endl;
 	std::cout << v_double << std::endl;
 
-	file2.getStringValue("Section", "Key", v_char);
+	file2.setDoubleValue("Test", "Double", 478.1231);
+	
 
 	system("pause");
 	return 0;

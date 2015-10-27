@@ -151,7 +151,7 @@ bool IniFile::getDoubleValue(const char * section, const char * key, double & co
 
 	if (getStringValue(section, key, value))
 	{
-		container = atof(value);
+		sscanf(value, "%lf", &container);
 		return true;
 	}
 	else
@@ -198,7 +198,7 @@ bool IniFile::setDoubleValue(const char * section, const char * key, const doubl
 	char *valueOther;
 	int len = 20;
 	valueOther = new char[len];
-	_gcvt_s(valueOther, len, value, len);
+	sprintf(valueOther, "%lf", value);
 	if (setStringValue(section, key, valueOther))
 		return true;
 	else
@@ -275,7 +275,7 @@ bool IniFile::setStringValue(const char * section, const char * key, const char 
 			std::copy(_FileContainer + value_end + 1, _FileContainer + _FileSize,
 				buf + value_start + strlen(value));
 			_FileSize = newsize;
-			//delete[] _FileContainer;
+			delete[] _FileContainer;
 			_FileContainer = new char[_FileSize + 1];
 			std::copy(buf, buf + _FileSize, _FileContainer);
 			_FileContainer[_FileSize] = '\0';
