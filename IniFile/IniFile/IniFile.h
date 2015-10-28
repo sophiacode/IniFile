@@ -156,5 +156,10 @@ private:
 		unsigned int &sec_end, unsigned int &key_end,
 		unsigned int &value_start, unsigned int &value_end);
 
+	/**
+	 *  \brief 忽略注释行
+	 *
+	 *  \param position 当前位置
+	 */
 	void ignoreComment(unsigned int &position);
 };

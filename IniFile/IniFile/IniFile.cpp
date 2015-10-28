@@ -165,6 +165,7 @@ bool IniFile::getStringValue(const char * section, const char * key, char * cont
 {
 	unsigned int sec_end, key_end, value_start, value_end;
 
+	loadIniFile();
 	findPosition(section, key, sec_end, key_end, value_start, value_end);
 
 	if (key_end == 0)
@@ -210,6 +211,7 @@ bool IniFile::setStringValue(const char * section, const char * key, const char 
 	char *buf;
 	unsigned int sec_start,sec_end, key_start,key_end,value_start,value_end;
 
+	loadIniFile();
 	findPosition(section, key, sec_end, key_end, value_start, value_end);
 
 	/* not find the section */

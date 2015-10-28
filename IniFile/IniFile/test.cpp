@@ -34,7 +34,6 @@ int main(void)
 
 	file2.setDoubleValue("Test", "Double", 478.1231);
 	
-
 	system("pause");
 	return 0;
 }
