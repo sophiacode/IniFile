@@ -4,7 +4,7 @@
 *	@brief		read and write .ini file
 *
 *	Date        Name            Description
-*	18/10/15	HQWY/Sophia		Creation
+*	18/10/31	HQWY/Sophia		Creation
 *
 *********************************************************************/
 
@@ -131,9 +131,9 @@ public:
 	void setStringValue(const char * section, const char * key, const char * value);
 
 private:
-	char        * _FileName;                  /* .ini文件名      */
-	std::string  _FileContainer;
-	std::map<std::string, std::string>  _FileMap;
+	char        * _FileName;                        /**< .ini文件名      */
+	std::string  _FileContainer;                    /**< .ini文件内容    */
+	std::map<std::string, std::string>  _FileMap;   /**< 储存.ini文件的value值 */
 
 	/**
 	 *  \brief  将文件内容载入_FileContainer中
@@ -142,9 +142,27 @@ private:
 	 */
 	void loadIniFile();
 
+	/**
+	 *  \brief  创建红黑树储存.ini文件的key-value值
+	 */
 	void createMap();
 
+	/**
+	 *  \brief  判断当前位置是否在注释行中
+	 *
+	 *  \param  pos 当前位置
+	 *
+	 *  \return 在注释行中则返回true,否则返回false
+	 */
 	bool isInComment(int pos);
 
+	/**
+	 *  \brief  获取value
+	 *
+	 *  \param  section section名
+	 *          key     key名
+	 *
+	 *  \return value值
+	 */
 	std::string getValue(const char * section, const char * key);
 };

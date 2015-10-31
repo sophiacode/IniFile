@@ -1,3 +1,13 @@
+/*********************************************************************
+*
+*	@file		IniFile.cpp
+*	@brief		read and write .ini file
+*
+*	Date        Name            Description
+*	18/10/31	HQWY/Sophia		Creation
+*
+*********************************************************************/
+
 #include<assert.h>
 #include<iostream>
 #include<fstream>

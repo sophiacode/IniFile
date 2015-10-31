@@ -1,6 +1,4 @@
-#include<fstream>
 #include<iostream>
-#include<sstream>
 #include"IniFile.h"
 
 int main(void)
