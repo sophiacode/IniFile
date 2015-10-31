@@ -9,6 +9,8 @@
 *********************************************************************/
 
 #pragma once
+#include<string>
+#include<map>
 
 class IniFile
 {
@@ -54,7 +56,7 @@ public:
 	*  \return 创建成功则返回true
 	*          创建失败则返回false
 	*/
-	bool createIniFile(const char * filename);
+	void createIniFile(const char * filename);
 
 	/**
 	*  \brief 获取整数型变量
@@ -102,7 +104,7 @@ public:
 	*  \return 设置成功则返回true
 	*          设置失败则返回false
 	*/
-	bool setIntegerValue(const char * section, const char * key, const int value);
+	void setIntegerValue(const char * section, const char * key, const int value);
 
 	/**
 	*  \brief 设置变量实数型数值
@@ -114,7 +116,7 @@ public:
 	*  \return 设置成功则返回true
 	*          设置失败则返回false
 	*/
-	bool setDoubleValue(const char * section, const char * key, const double value);
+	void setDoubleValue(const char * section, const char * key, const double value);
 
 	/**
 	*  \brief 设置变量字符串型数值
@@ -126,40 +128,23 @@ public:
 	*  \return 设置成功则返回true
 	*          设置失败则返回false
 	*/
-	bool setStringValue(const char * section, const char * key, const char * value);
+	void setStringValue(const char * section, const char * key, const char * value);
 
 private:
 	char        * _FileName;                  /* .ini文件名      */
-	char        * _FileContainer;             /* .ini文件内容 */
-	unsigned int  _FileSize;                  /* .ini文件大小 */
-	const unsigned int _MAXFILESIZE = 65535;  /* 文件最大大小 */
+	std::string  _FileContainer;
+	std::map<std::string, std::string>  _FileMap;
 
 	/**
 	 *  \brief  将文件内容载入_FileContainer中
 	 *
 	 *  \return 操作成功返回true，否则返回false
 	 */
-	bool loadIniFile();
+	void loadIniFile();
 
-	/**
-	 *  \brief  查找相应section/key/value的位置
-	 *          (若未查找到则将相应变量置为0)
-	 *
-	 *  \param  section      需查找的section名
-	 *          key          需查找的key名
-	 *			sec_end      section名所在行最后一个字符位置 
-	 *			key_end      section名第一个字符所在位置
-	 *			value_start  value第一个字符所在位置
-	 *			value_end    value最后一个字符所在位置
-	 */
-	void findPosition(const char * section, const char * key,
-		unsigned int &sec_end, unsigned int &key_end,
-		unsigned int &value_start, unsigned int &value_end);
+	void createMap();
 
-	/**
-	 *  \brief 忽略注释行
-	 *
-	 *  \param position 当前位置
-	 */
-	void ignoreComment(unsigned int &position);
+	bool isInComment(int pos);
+
+	std::string getValue(const char * section, const char * key);
 };

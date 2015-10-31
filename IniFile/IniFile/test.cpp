@@ -1,5 +1,6 @@
 #include<fstream>
 #include<iostream>
+#include<sstream>
 #include"IniFile.h"
 
 int main(void)
@@ -11,7 +12,7 @@ int main(void)
 	int v_int;
 	double v_double;
 	char v_char[10];
-	
+
 	for (int i = 0;i < 1000;i++)
 	{
 		IniFile file;
@@ -22,7 +23,6 @@ int main(void)
 		int count;
 		file.getIntegerValue("Another", "Count", count);
 		std::cout << count << std::endl;
-
 	}
 
 	file2.getStringValue("General", "Language", v_char);
@@ -37,3 +37,4 @@ int main(void)
 	system("pause");
 	return 0;
 }
+
