@@ -8,61 +8,41 @@
 *
 *********************************************************************/
 
-#include<assert.h>
 #include<iostream>
 #include<fstream>
 #include<sstream>
 #include"inifile.h"
 
-IniFile::IniFile() :
-	_FileName(nullptr)
+IniFile::IniFile() 
 {
 	
 }
 
 IniFile::IniFile(const char * filename)
 {
-	_FileName = new(std::nothrow) char[strlen(filename) + 1];
-	assert(_FileName != nullptr);
-	std::copy(filename, filename + strlen(filename) + 1, _FileName);
-
+	_FileName = filename;
 	loadIniFile();
-
 	createMap();
 }
 
 IniFile::IniFile(const IniFile & rhs)
 {
-	_FileName = new(std::nothrow) char[strlen(rhs._FileName) + 1];
-	assert(_FileName != nullptr);
-	std::copy(rhs._FileName, rhs._FileName + strlen(rhs._FileName) + 1, _FileName);
-
+	_FileName = rhs._FileName;
 	_FileContainer = rhs._FileContainer;
-
 	_FileMap = rhs._FileMap;
 }
 
 IniFile::~IniFile()
 {
-	if (!_FileName)
-	{
-		delete[] _FileName;
-		_FileName = nullptr;
-	}
+	
 }
 
 IniFile & IniFile::operator = (const IniFile & rhs)
 {
 	if (this != &rhs)
 	{
-		if(!_FileName)
-			delete[] _FileName;
-		_FileName = new(std::nothrow) char[strlen(rhs._FileName) + 1];
-		assert(_FileName != nullptr);
-		std::copy(rhs._FileName, rhs._FileName + strlen(rhs._FileName) + 1, _FileName);
-
+		_FileName = rhs._FileName;
 		_FileContainer = rhs._FileContainer;
-
 		_FileMap = rhs._FileMap;
 	}
 	return *this;
@@ -70,15 +50,8 @@ IniFile & IniFile::operator = (const IniFile & rhs)
 
 void IniFile::createIniFile(const char * filename)
 {
-	if(!_FileName)
-		delete[] _FileName;
-	
-	_FileName = new(std::nothrow) char[strlen(filename) + 1];	
-	assert(_FileName != nullptr);
-	std::copy(filename, filename + strlen(filename) + 1, _FileName);
-	
+	_FileName = filename;
 	loadIniFile();
-
 	createMap();
 }
 
@@ -93,8 +66,7 @@ bool IniFile::getIntegerValue(const char * section, const char * key, int & cont
 	}
 	else
 	{
-		std::stringstream buffer;
-		buffer << value;
+		std::stringstream buffer(value);
 		buffer >> container;
 		return true;
 	}
@@ -111,14 +83,13 @@ bool IniFile::getDoubleValue(const char * section, const char * key, double & co
 	}
 	else
 	{
-		std::stringstream buffer;
-		buffer << value;
+		std::stringstream buffer(value);
 		buffer >> container;
 		return true;
 	}
 }
 
-bool IniFile::getStringValue(const char * section, const char * key, char * container)
+bool IniFile::getStringValue(const char * section, const char * key, char * container,int maxlen)
 {
 	std::string value = getValue(section, key);
 	if (value.empty())
@@ -129,8 +100,16 @@ bool IniFile::getStringValue(const char * section, const char * key, char * cont
 	}
 	else
 	{
-		value.copy(container, value.size());
-		container[value.size()] = '\0';
+		if (value.size() < maxlen - 1)
+		{
+			value.copy(container, value.size());
+			container[value.size()] = '\0';
+		}
+		else
+		{
+			value.copy(container, maxlen - 2);
+			container[maxlen - 1] = '\0';
+		}
 		return true;
 	}
 }
@@ -174,27 +153,27 @@ void IniFile::setStringValue(const char * section, const char * key, const char 
 		{
 			sec_start = _FileContainer.find(section, sec_start + 1);
 		}
-		if (sec_start < 0)
+		if (sec_start == std::string::npos)
 			break;
 		leftbrace = _FileContainer.rfind('[', sec_start);
 		rightbrace = _FileContainer.find(']', sec_start);
 		lastnewline = _FileContainer.rfind('\n', sec_start);
 		nextnewline = _FileContainer.find('\n', sec_start);
-		if (rightbrace < 0)
+		if (rightbrace == std::string::npos)
 		{
-			sec_start = -1;
+			sec_start = std::string::npos;
 			break;
 		}
-		if (nextnewline < 0)
+		if (nextnewline == std::string::npos)
 			nextnewline = _FileContainer.size();
 	} while (leftbrace < lastnewline || rightbrace > nextnewline);
 	
 	/* not find the section */
-	if (sec_start < 0)
+	if (sec_start == std::string::npos)
 	{
 		_FileContainer += "\n[" + sec + "]\n" + k + "=" + val + "\n";
 
-		_FileMap.insert(std::map<std::string, std::string>::value_type(sec + "_" + k, val));
+		_FileMap.insert(std::map<std::string, std::string>::value_type(sec + "|" + k, val));
 	}
 	else{
 		sec_end = sec_start + strlen(section);
@@ -207,7 +186,7 @@ void IniFile::setStringValue(const char * section, const char * key, const char 
 		}
 
 		/* not find the key */
-		if (key_start < 0 || (bound > 0 && key_start > bound))
+		if (key_start == std::string::npos || (bound > std::string::npos && key_start > bound))
 		{
 			int pos = _FileContainer.find('\n', sec_end) + 1;
 			_FileContainer.insert(pos, key);
@@ -218,7 +197,7 @@ void IniFile::setStringValue(const char * section, const char * key, const char 
 			pos += strlen(value);
 			_FileContainer.insert(pos, "\n");
 
-			_FileMap.insert(std::map<std::string, std::string>::value_type(sec + "_" + k, val));
+			_FileMap.insert(std::map<std::string, std::string>::value_type(sec + "|" + k, val));
 		}
 
 		else {
@@ -227,27 +206,31 @@ void IniFile::setStringValue(const char * section, const char * key, const char 
 			while (_FileContainer[value_start] == ' ')
 				value_start++;
 			value_end = _FileContainer.find('\n', value_start) - 1;
-			if (value_end < 0)
+			if (value_end == std::string::npos)
 				value_end = _FileContainer.size() - 1;
 			while (_FileContainer[value_end] == ' ')
 				value_end--;
 
 			_FileContainer.replace(value_start, value_end - value_start + 1, value);
 
-			auto iter = _FileMap.find(sec + "_" + k);
+			auto iter = _FileMap.find(sec + "|" + k);
 			iter->second = val;
 		}
 	}
 
-	std::fstream file(_FileName, std::ios::out);
+	std::fstream file(_FileName.c_str(), std::ios::out);
 	file << _FileContainer;
 }
 
 void IniFile::loadIniFile()
 {
 	std::stringstream buffer;
-	std::fstream file(_FileName,std::ios::in);
-
+	std::fstream file(_FileName.c_str(),std::ios::in);
+	if (!file.is_open())
+	{
+		std::cerr << "Fail to open the file.\n" << std::endl;
+		exit(1);
+	}
 	buffer << file.rdbuf();
 	_FileContainer = buffer.str();
 }
@@ -267,7 +250,7 @@ void IniFile::createMap()
 		if (isInComment(sec_start))
 		{
 			pos = _FileContainer.find('\n',sec_start) + 1;
-			if (pos < 1)
+			if (pos == std::string::npos + 1)
 				pos = _FileContainer.size();
 			continue;
 		}
@@ -280,7 +263,7 @@ void IniFile::createMap()
 
 		pos = sec_end;
 		int end = _FileContainer.find('[', pos);
-		if (end < 0)
+		if (end == std::string::npos)
 			end = _FileContainer.size();
 
 		while (pos < end)
@@ -289,7 +272,7 @@ void IniFile::createMap()
 			if (isInComment(key_end))
 			{
 				pos = _FileContainer.find('\n', key_end) + 1;
-				if (pos < 1)
+				if (pos == std::string::npos + 1)
 					pos = _FileContainer.size();
 				continue;
 			}
@@ -304,16 +287,16 @@ void IniFile::createMap()
 			while (_FileContainer[value_start] == ' ')
 				value_start++;
 			value_end = _FileContainer.find('\n', value_start) - 1;
-			if (value_end < 0)
+			if (value_end == std::string::npos)
 				value_end = _FileContainer.size() - 1;
 			while (_FileContainer[value_end] == ' ')
 				value_end--;
 			value = _FileContainer.substr(value_start, value_end - value_start + 1);
 
-			_FileMap.insert(std::map<std::string, std::string>::value_type(section + "_" + key, value));
+			_FileMap.insert(std::map<std::string, std::string>::value_type(section + "|" + key, value));
 
 			pos = _FileContainer.find('=', value_end);
-			if (pos < 0)
+			if (pos == std::string::npos)
 				pos = _FileContainer.size();
 		}
 		if (pos == _FileContainer.size())
@@ -339,7 +322,7 @@ std::string IniFile::getValue(const char * section, const char * key)
 	std::string k(key);
 	std::string value;
 
-	auto iter = _FileMap.find(s + "_" + k);
+	auto iter = _FileMap.find(s + "|" + k);
 	if (iter != _FileMap.end())
 	{
 		value = iter->second;

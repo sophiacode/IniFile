@@ -88,11 +88,12 @@ public:
 	*  \param section     .ini文件的section名
 	*         key         .ini文件的key名
 	*    	  container   赋值对象
+	*         maxlen      字符串最大容量
 	*
 	*  \return 获取成功则返回true
 	*          获取失败则返回false
 	*/
-	bool getStringValue(const char * section, const char * key, char * container);
+	bool getStringValue(const char * section, const char * key, char * container,int maxlen);
 
 	/**
 	*  \brief 设置变量整数型数值
@@ -131,7 +132,7 @@ public:
 	void setStringValue(const char * section, const char * key, const char * value);
 
 private:
-	char        * _FileName;                        /**< .ini文件名      */
+	std::string  _FileName;                         /**< .ini文件名      */
 	std::string  _FileContainer;                    /**< .ini文件内容    */
 	std::map<std::string, std::string>  _FileMap;   /**< 储存.ini文件的value值 */
 

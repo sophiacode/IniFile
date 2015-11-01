@@ -23,7 +23,7 @@ int main(void)
 		std::cout << count << std::endl;
 	}
 
-	file2.getStringValue("General", "Language", v_char);
+	file2.getStringValue("General", "Language", v_char,10);
 	file3.getIntegerValue("General", "Age", v_int);
 	file4.getDoubleValue("Info", "Cost", v_double);
 	std::cout << v_char << std::endl;
